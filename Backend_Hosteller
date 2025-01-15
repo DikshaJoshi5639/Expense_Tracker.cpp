@@ -1,0 +1,196 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <map>
+
+using namespace std;
+
+// Structure to hold expense data
+struct Expense {
+    string category;
+    double amount;
+    string description;
+};
+
+// Class to manage budget and expenses
+class ExpenseTracker {
+private:
+    double monthlyIncome = 0; // Total monthly income
+    double totalSpent = 0;    // Total amount spent
+    map<string, double> budgets; // Budget for each category
+    vector<Expense> expenses;    // List of all expenses
+
+public:
+    // Set or update monthly income
+    void setMonthlyIncome() {
+        cout << "Enter your total monthly income (in INR): ₹";
+        cin >> monthlyIncome;
+        if (monthlyIncome < 0) {
+            cout << "Income cannot be negative. Setting monthly income to zero." << endl;
+            monthlyIncome = 0;
+        }
+        totalSpent = 0; // Reset totalSpent when monthly income is set
+        cout << "Monthly income set to: ₹" << monthlyIncome << endl;
+    }
+
+    // Set or update budget for a specific category
+    void setBudget() {
+        string category;
+        double amount;
+
+        cout << "Enter category for budget: ";
+        cin >> ws; // clear any leading whitespace
+        getline(cin, category);
+
+        cout << "Enter budget amount for " << category << " (in INR): ₹";
+        cin >> amount;
+
+        if (amount < 0) {
+            cout << "Budget amount cannot be negative." << endl;
+            return;
+        }
+
+        // Update or add the budget
+        budgets[category] = amount;
+        cout << "Budget set for " << category << ": ₹" << amount << endl;
+    }
+
+    // Add expenses for a specific category
+    void addExpenses() {
+        string category, description;
+        double amount;
+        char moreCategories = 'y';
+
+        while (moreCategories == 'y' || moreCategories == 'Y') {
+            cout << "Enter expense category: ";
+            cin >> ws; // clear any leading whitespace
+            getline(cin, category);
+
+            if (budgets.find(category) == budgets.end()) {
+                cout << "Category not found. Would you like to set a budget for this category? (y/n): ";
+                char setBudgetChoice;
+                cin >> setBudgetChoice;
+                if (setBudgetChoice == 'y' || setBudgetChoice == 'Y') {
+                    setBudget();
+                } else {
+                    cout << "Skipping expense entry for this category as no budget is set." << endl;
+                    continue;
+                }
+            }
+
+            char moreExpenses = 'y';
+            while (moreExpenses == 'y' || moreExpenses == 'Y') {
+                cout << "Enter expense amount for " << category << " (in INR): ₹";
+                cin >> amount;
+
+                if (amount < 0) {
+                    cout << "Expense amount cannot be negative." << endl;
+                    continue;
+                }
+
+                if (totalSpent + amount > monthlyIncome) {
+                    cout << "Error: Total spent cannot exceed monthly income. Please adjust the amount." << endl;
+                    continue;
+                }
+
+                cout << "Enter description for the expense: ";
+                cin >> ws; // clear any leading whitespace
+                getline(cin, description);
+
+                expenses.push_back({category, amount, description});
+                totalSpent += amount;
+                cout << "Expense added: ₹" << amount << " for " << category << endl;
+
+                cout << "Do you want to add another expense under this category? (y/n): ";
+                cin >> moreExpenses;
+            }
+
+            cout << "Do you want to add expenses for another category? (y/n): ";
+            cin >> moreCategories;
+        }
+    }
+
+    // Generate a summary report
+    void generateReport() {
+        map<string, double> totalExpenses;
+        double totalBudget = 0;
+
+        // Calculate total expenses per category
+        for (const auto& expense : expenses) {
+            totalExpenses[expense.category] += expense.amount;
+        }
+
+        // Display the report
+        cout << fixed << setprecision(2);
+        cout << "\nExpense Summary Report:" << endl;
+        cout << "-----------------------" << endl;
+
+        double totalBudgetSpent = 0;
+
+        for (const auto& budget : budgets) {
+            string category = budget.first;
+            double budgetAmount = budget.second;
+            double spent = totalExpenses[category];
+            double remaining = budgetAmount - spent;
+            totalBudget += budgetAmount;
+            totalBudgetSpent += spent;
+
+            cout << "Category: " << category << endl;
+            cout << "Budget: ₹" << budgetAmount << endl;
+            cout << "Spent: ₹" << spent << endl;
+            cout << "Remaining: ₹" << remaining << endl;
+            cout << "-----------------------" << endl;
+        }
+
+        // Calculate and display total amounts
+        double remainingIncome = monthlyIncome - totalSpent;
+
+        cout << "Total Budget Allocated: ₹" << totalBudget << endl;
+        cout << "Total Spent: ₹" << totalSpent << endl;
+        cout << "Remaining Income: ₹" << remainingIncome << endl;
+    }
+
+    // Display menu and handle user input
+    void menu() {
+        int choice;
+
+        do {
+            cout << "\nExpense Tracker Menu:" << endl;
+            cout << "1. Set Monthly Income" << endl;
+            cout << "2. Set Budget" << endl;
+            cout << "3. Add Expenses" << endl;
+            cout << "4. Generate Report" << endl;
+            cout << "5. Exit" << endl;
+            cout << "Enter your choice (1-5): ";
+            cin >> choice;
+
+            switch (choice) {
+                case 1:
+                    setMonthlyIncome();
+                    break;
+                case 2:
+                    setBudget();
+                    break;
+                case 3:
+                    addExpenses();
+                    break;
+                case 4:
+                    generateReport();
+                    break;
+                case 5:
+                    cout << "Exiting program..." << endl;
+                    break;
+                default:
+                    cout << "Invalid choice. Please enter a number between 1 and 5." << endl;
+            }
+        } while (choice != 5);
+    }
+};
+
+int main() {
+    ExpenseTracker tracker;
+    tracker.menu(); // Start the menu-driven interface
+
+    return 0;
+}

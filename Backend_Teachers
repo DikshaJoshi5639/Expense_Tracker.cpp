@@ -1,0 +1,98 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// Structure to hold information about an expense category
+struct Expense {
+    string category;
+    double amount;
+};
+
+// Function to display the menu
+void displayMenu() {
+    cout << "\nExpense Tracker Menu:" << endl;
+    cout << "1. Set Salary" << endl;
+    cout << "2. Add Expenses" << endl;
+    cout << "3. View Report" << endl;
+    cout << "4. Exit" << endl;
+    cout << "Enter your choice: ";
+}
+
+// Function to add expenses
+void addExpenses(vector<Expense>& expenses) {
+    char addMore = 'y';
+    while (addMore == 'y' || addMore == 'Y') {
+        Expense expense;
+        cout << "Enter expense category: ";
+        cin.ignore(); // To handle any newline characters
+        getline(cin, expense.category);
+        cout << "Enter expense amount (in Rupees): ";
+        cin >> expense.amount;
+        expenses.push_back(expense);
+        cout << "Expense added successfully." << endl;
+
+        // Ask the user if they want to add another expense
+        cout << "Do you want to add another expense? (y/n): ";
+        cin >> addMore;
+        cin.ignore(); // To handle any newline characters
+    }
+}
+
+// Function to calculate total expenses
+double calculateTotalExpenses(const vector<Expense>& expenses) {
+    double totalExpenses = 0.0;
+    for (const auto& expense : expenses) {
+        totalExpenses += expense.amount;
+    }
+    return totalExpenses;
+}
+
+// Function to display the report
+void displayReport(double salary, const vector<Expense>& expenses) {
+    double totalExpenses = calculateTotalExpenses(expenses);
+    double savings = salary - totalExpenses;
+
+    cout << "\n--- Monthly Report ---" << endl;
+    cout << "Salary: " << salary << " Rupees" << endl;
+    cout << "Total Expenses: " << totalExpenses << " Rupees" << endl;
+    cout << "Remaining Balance (Savings): " << savings << " Rupees" << endl;
+
+    cout << "\nExpense Details:" << endl;
+    for (const auto& expense : expenses) {
+        cout << "- " << expense.category << ": " << expense.amount << " Rupees" << endl;
+    }
+}
+
+int main() {
+    double salary = 0.0;
+    vector<Expense> expenses;
+    int choice;
+
+    do {
+        displayMenu();
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter your salary (in Rupees): ";
+                cin >> salary;
+                cout << "Salary set successfully." << endl;
+                break;
+            case 2:
+                addExpenses(expenses);
+                break;
+            case 3:
+                displayReport(salary, expenses);
+                break;
+            case 4:
+                cout << "Exiting the program." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (choice != 4);
+
+    return 0;
+}

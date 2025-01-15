@@ -1,0 +1,119 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+struct Expense {
+    string category;
+    float amount;
+};
+
+class ExpenseTracker {
+private:
+    float monthlyIncome;
+    float rent;
+    float dailyTravelExpense;
+    float budget;
+    vector<Expense> expenses;
+
+    float calculateTotalExpenses() {
+        float total = 0;
+        for (const auto& expense : expenses) {
+            total += expense.amount;
+        }
+        return total;
+    }
+
+    float calculateTotalExpensesWithRent() {
+        return calculateTotalExpenses() + rent;
+    }
+
+    float calculateSavings() {
+        float totalExpenses = calculateTotalExpensesWithRent();
+        return monthlyIncome - totalExpenses;
+    }
+
+public:
+    ExpenseTracker() : monthlyIncome(0), rent(0), dailyTravelExpense(0), budget(0) {}
+
+    void setMonthlyIncome(float income) {
+        monthlyIncome = income;
+    }
+
+    void setRent(float rentAmount) {
+        rent = rentAmount;
+    }
+
+    void setDailyTravelExpense(float travelExpense) {
+        dailyTravelExpense = travelExpense;
+    }
+
+    void setBudget(float budgetAmount) {
+        budget = budgetAmount;
+    }
+
+    void addExpense(const string& category, float amount) {
+        expenses.push_back({category, amount});
+    }
+
+    void generateReport() {
+        float totalExpenses = calculateTotalExpensesWithRent();
+        float savings = calculateSavings();
+        cout << "\n--- Expense Report ---" << endl;
+        cout << "Monthly Income: " << monthlyIncome << " INR" << endl;
+        cout << "Monthly Rent: " << rent << " INR" << endl;
+        cout << "Daily Traveling Expense: " << dailyTravelExpense << " INR" << endl;
+        cout << "Total Expenses (including rent): " << totalExpenses << " INR" << endl;
+        cout << "Savings: " << savings << " INR" << endl;
+
+        if (totalExpenses > budget) {
+            cout << "Warning: You have exceeded your budget limit!" << endl;
+        } else if (totalExpenses >= 0.9 * budget) {
+            cout << "Notice: You are nearing your budget limit!" << endl;
+        }
+        cout << "------------------------" << endl;
+    }
+};
+
+int main() {
+    ExpenseTracker tracker;
+    float income, rent, dailyTravel, budget;
+    string category;
+    float amount;
+    char addExpense;
+
+    cout << "Enter monthly income (INR): ";
+    cin >> income;
+    tracker.setMonthlyIncome(income);
+
+    cout << "Enter monthly rent (INR): ";
+    cin >> rent;
+    tracker.setRent(rent);
+
+    cout << "Enter daily traveling expense (INR): ";
+    cin >> dailyTravel;
+    tracker.setDailyTravelExpense(dailyTravel);
+
+    cout << "Enter budget limit (INR): ";
+    cin >> budget;
+    tracker.setBudget(budget);
+
+    do {
+        cout << "Do you want to add an expense? (y/n): ";
+        cin >> addExpense;
+
+        if (addExpense == 'y' || addExpense == 'Y') {
+            cout << "Enter expense category: ";
+            cin.ignore();  // Clear input buffer
+            getline(cin, category);
+            cout << "Enter expense amount (INR): ";
+            cin >> amount;
+            tracker.addExpense(category, amount);
+        }
+    } while (addExpense == 'y' || addExpense == 'Y');
+
+    tracker.generateReport();
+
+    return 0;
+}
